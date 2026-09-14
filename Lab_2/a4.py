@@ -1,4 +1,4 @@
-a = input("Введите число A: ")
-b = input("Введите число B: ")
+a = int(input("Введите число A: "))
+b = int(input("Введите число B: "))
 
 print(a if a >= b else b)
