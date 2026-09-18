@@ -1,5 +1,4 @@
 from sys import argv
-import os
 from decimal import Decimal, ROUND_HALF_UP
 
 file_path = "b1_task_files/inmap0.dat"
