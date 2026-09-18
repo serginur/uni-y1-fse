@@ -1,4 +1,5 @@
 from sys import argv
+from decimal import ROUND_HALF_UP, Decimal as D
 
 file_path = "b2_task_files/1.WCData.txt"
 if (len(argv) > 1):
@@ -24,3 +25,14 @@ for i in range(2, len(lines)):
         time.append(line_split[0])
         air_temp.append(line_split[1])
         wind_speed.append(line_split[2])
+
+print(f"Time{"WC temp":>12}{"WC Effect":>14}")
+print("-"*30)
+
+i = 0
+while (i < len(time)):
+    Twc = D(D("35.74")+D("0.6125")*D(air_temp[i]) + (D("0.4275")*D(air_temp[i]) - D("35.75"))*D(wind_speed[i])**D("0.16")).quantize(D("0.1"))
+    WC_effect = D(Twc - D(air_temp[i])).quantize(D("0.1"))
+    print(f"{time[i]}{Twc:>8}{WC_effect:>14}")
+    i += 1
+print("-"*30)
