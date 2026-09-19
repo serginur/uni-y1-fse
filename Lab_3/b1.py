@@ -29,3 +29,36 @@ commands = []
 for i in range(1, len(input_lines)):
     if input_lines[i]:
         commands.append(list(input_lines[i].split()))
+
+print("Cat and Mouse\n")
+print(f"{"Cat":^7}{" "*4}{"Mouse":^7}{" "*4}{"Distance":^8}")
+print("-"*(7+4+7+4+8))
+
+C = {"lin": "?", "col": "?"}
+M = {"lin": "?", "col": "?"}
+for command in commands:
+    match command[0]:
+        case "P":
+            print(f"({C['lin']:>2},{C['col']:>2}){" "*4}", end='')
+            print(f"({M['lin']:>2},{M['col']:>2}){" "*4}", end='')
+            if (C["lin"] == "?" or M["lin"] == "?"):
+                print()
+            else:
+                print(f"{abs(C["lin"] - M["lin"])+abs(C["col"] - M["col"]):^8}")
+        case "C" | "M":
+            player = M if command[0] == 'M' else C
+            if (player["lin"] == "?"):
+                player["lin"] = int(command[1])
+                player["col"] = int(command[2])
+            else:
+                player["lin"] += int(command[1])
+                if (player["lin"] < 1):
+                    player["lin"] += lines_num
+                if (player["lin"] > lines_num):
+                    player["lin"] -= lines_num
+                player["col"] += int(command[2])
+                if (player["col"] < 1):
+                    player["col"] += columns_num
+                if (player["col"] > columns_num):
+                    player["col"] -= columns_num
+
