@@ -24,7 +24,7 @@ print(f"Precipitation report for {input_lines[1]} during {input_lines[2]}\n")
 
 month = list(calendar.month_abbr).index(input_lines[2].split(", ")[0][:3])
 year = int(input_lines[2].split(", ")[1])
-num_of_days = monthrange(month, year)[1]
+num_of_days = monthrange(year, month)[1]
 
 print(f"{"Error":<8}{"Day":>8}{"Line":>7}")
 
