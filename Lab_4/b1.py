@@ -10,7 +10,9 @@ if (len(argv) > 1):
 input_lines = []
 try:
     with open(file_path, 'r') as file:
-        input_lines = file.read().split('\n')
+        for line in file.read().split('\n'):
+            if line:
+                input_lines.append(line)
 except FileNotFoundError:
     print("Файл или директория отсутсвует!")
     exit(0)
@@ -29,7 +31,7 @@ num_of_days = monthrange(year, month)[1]
 print(f"{"Error":<8}{"Day":>8}{"Line":>7}")
 
 data = {}
-for line_num in range(3, len(input_lines)+1):
+for line_num in range(3, len(input_lines)):
     line = input_lines[line_num]
     if not line:
         continue
@@ -64,10 +66,10 @@ for i in range(1, num_of_days+1):
             max_amount = inch_in_day
         average_amount += inch_in_day
     graph = "*"*graph_len
-    print(f"{day:3>}{"NA" if inch_in_day is None else inch_in_day:>7}{graph}")
+    print(f"{day:>3}{"NA" if inch_in_day is None else inch_in_day:>7} {graph}")
 
 if average_amount is not None:
-    average_amount = average_amount/D(len(data))
+    average_amount = D(average_amount/D(len(data))).quantize(D("0.01"))
 else:
     average_amount = min_amount = max_amount = "NA"
 print("\nMinimum     Maximum     Average")
