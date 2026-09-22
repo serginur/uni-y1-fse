@@ -32,8 +32,8 @@ for line_num in range(3, len(input_lines)+1):
     if not line:
         continue
     error = False
-    day, inches = list(map(int, line.split()))
-    if day > num_of_days or day < 1:
+    day, inches = list(map(D, line.split()))
+    if day > D(str(num_of_days)) or day < D(str(1)):
         print(f"{"Invalid":<8}{day:>8}{line_num:>7}")
         error = True
     if day in data:
@@ -42,16 +42,16 @@ for line_num in range(3, len(input_lines)+1):
     if not error:
         data[day] = inches
 
-
 print(f"\nDay Amount Graph")
-for day in range(1, num_of_days+1):
+for i in range(1, num_of_days+1):
+    day = D(i)
     inch = None
     graph_len = 0
     if day in data:
-        inch = D(str(data[day])).quantize(D("0.01"), ROUND_HALF_UP)
+        inch = data[day].quantize(D("0.01"), ROUND_HALF_UP)
         measure = D("0.25")
         graph_len = int(D(inch/measure).quantize(D('0'), ROUND_UP))
     graph = "*"*graph_len
     print(f"{day:3>}{inch if inch else "NA":>7}{graph}")
-    
+
 
