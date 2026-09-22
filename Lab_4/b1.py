@@ -20,15 +20,17 @@ except PermissionError:
     print("Недостаточно прав доступа!")
     exit(0)
 
-print("Programmer: Iakimovich Sergey")
-print(input_lines[0]+'\n')
-print(f"Precipitation report for {input_lines[1]} during {input_lines[2]}\n")
+with open("Report.txt", 'w') as output:
+    output.write("Programmer: Iakimovich Sergey\n")
+    output.write(input_lines[0]+'\n\n')
+    output.write(f"Precipitation report for {input_lines[1]} during {input_lines[2]}\n\n")
 
 month = list(calendar.month_abbr).index(input_lines[2].split(", ")[0][:3])
 year = int(input_lines[2].split(", ")[1])
 num_of_days = monthrange(year, month)[1]
 
-print(f"{"Error":<8}{"Day":>8}{"Line":>7}")
+with open("Report.txt", 'a') as output:
+    output.write(f"{"Error":<9}{"Day":>8}{"Line":>11}\n")
 
 data = {}
 for line_num in range(3, len(input_lines)):
@@ -38,10 +40,12 @@ for line_num in range(3, len(input_lines)):
     error = False
     day, inches = list(map(D, line.split()))
     if day > D(str(num_of_days)) or day < D(str(1)):
-        print(f"{"Invalid":<8}{day:>8}{line_num:>7}")
+        with open("Report.txt", 'a') as output:
+            output.write(f"{"Invalid":<9}{day:>8}{line_num+1:>11}\n")
         error = True
     if day in data:
-        print(f"{"Repeated":<8}{day:>8}{line_num:>7}")
+        with open("Report.txt", 'a') as output:
+            output.write(f"{"Repeated":<9}{day:>8}{line_num+1:>11}\n")
         error = True
     if not error:
         data[day] = inches
@@ -49,7 +53,8 @@ for line_num in range(3, len(input_lines)):
 min_amount = None
 max_amount = None
 average_amount = None
-print(f"\nDay Amount Graph")
+with open("Report.txt", 'a') as output:
+    output.write(f"\nDay Amount Graph\n")
 for i in range(1, num_of_days+1):
     day = D(i)
     inch_in_day = None
@@ -66,11 +71,13 @@ for i in range(1, num_of_days+1):
             max_amount = inch_in_day
         average_amount += inch_in_day
     graph = "*"*graph_len
-    print(f"{day:>3}{"NA" if inch_in_day is None else inch_in_day:>7} {graph}")
+    with open("Report.txt", 'a') as output:
+        output.write(f"{day:>3}{"NA" if inch_in_day is None else inch_in_day:>7} {graph}\n")
 
 if average_amount is not None:
-    average_amount = D(average_amount/D(len(data))).quantize(D("0.01"))
+    average_amount = D(average_amount/D(num_of_days)).quantize(D("0.01"))
 else:
     average_amount = min_amount = max_amount = "NA"
-print("\nMinimum     Maximum     Average")
-print(f"{min_amount:>7}{max_amount:>12}{average_amount:>12}")
+with open("Report.txt", 'a') as output:
+    output.write("\nMinimum     Maximum     Average\n")
+    output.write(f"{min_amount:>7}{max_amount:>12}{average_amount:>12}\n")
