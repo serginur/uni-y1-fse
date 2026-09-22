@@ -33,7 +33,7 @@ print("Cat and Mouse\n")
 print(f"{"Cat":^7}{" "*4}{"Mouse":^7}{" "*4}{"Distance":^8}")
 print("-"*(7+4+7+4+8))
 
-C = {"row": "?", "col": "?", "dis": 0}
+C = {"row": "?", "col": "?", "dis": -1}
 M = {"row": "?", "col": "?", "dis": -1}
 is_caught = False
 
@@ -45,7 +45,7 @@ for command in commands:
             print()
         else:
             print(f"{(abs(C["row"] - M["row"])+abs(C["col"] - M["col"])):>8}")
-    elif (command[0] == "C" or command[0] == "M"):
+    else:
         player = M if command[0] == 'M' else C
         if (player["row"] == "?"):
             player["row"] = int(command[1])
