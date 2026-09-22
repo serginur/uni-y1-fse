@@ -1,5 +1,6 @@
 from sys import argv
 from calendar import monthrange
+from decimal import Decimal as D, ROUND_HALF_UP, ROUND_UP
 
 file_path = "b1_task_files/Precip.txt"
 if (len(argv) > 1):
@@ -25,19 +26,32 @@ num_of_days = monthrange(month, year)[1]
 
 print(f"{"Error":<8}{"Day":>8}{"Line":>7}")
 
-data_list = []
-for i in range(3, len(input_lines)):
+data = {}
+for line_num in range(3, len(input_lines)+1):
+    line = input_lines[line_num]
+    if not line:
+        continue
     error = False
-    line = input_lines[i]
     day, inches = list(map(int, line.split()))
     if day > num_of_days or day < 1:
-        print(f"{"Invalid":<8}{day:>8}{i:>7}")
+        print(f"{"Invalid":<8}{day:>8}{line_num:>7}")
         error = True
-    for data in data_list:
-        if day in data:
-            print(f"{"Repeated":<8}{day:>8}{i:>7}")
-            error = True
-            break
+    if day in data:
+        print(f"{"Repeated":<8}{day:>8}{line_num:>7}")
+        error = True
     if not error:
-        data_list.append([day, inches])
+        data[day] = inches
+
+
+print(f"\nDay Amount Graph")
+for day in range(1, num_of_days+1):
+    inch = None
+    graph_len = 0
+    if day in data:
+        inch = D(str(data[day])).quantize(D("0.01"), ROUND_HALF_UP)
+        measure = D("0.25")
+        graph_len = int(D(inch/measure).quantize(D('0'), ROUND_UP))
+    graph = "*"*graph_len
+    print(f"{day:3>}{inch if inch else "NA":>7}{graph}")
+    
 
