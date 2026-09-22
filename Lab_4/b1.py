@@ -42,16 +42,31 @@ for line_num in range(3, len(input_lines)+1):
     if not error:
         data[day] = inches
 
+min_amount = None
+max_amount = None
+average_amount = None
 print(f"\nDay Amount Graph")
 for i in range(1, num_of_days+1):
     day = D(i)
-    inch = None
+    inch_in_day = None
     graph_len = 0
     if day in data:
-        inch = data[day].quantize(D("0.01"), ROUND_HALF_UP)
+        inch_in_day = data[day].quantize(D("0.01"), ROUND_HALF_UP)
         measure = D("0.25")
-        graph_len = int(D(inch/measure).quantize(D('0'), ROUND_UP))
+        graph_len = int(D(inch_in_day/measure).quantize(D('0'), ROUND_UP))
+        if min_amount is None:
+            min_amount = max_amount = average_amount = inch_in_day
+        elif min_amount > inch_in_day:
+            min_amount = inch_in_day
+        if max_amount < inch_in_day:
+            max_amount = inch_in_day
+        average_amount += inch_in_day
     graph = "*"*graph_len
-    print(f"{day:3>}{inch if inch else "NA":>7}{graph}")
+    print(f"{day:3>}{"NA" if inch_in_day is None else inch_in_day:>7}{graph}")
 
-
+if average_amount is not None:
+    average_amount = average_amount/D(len(data))
+else:
+    average_amount = min_amount = max_amount = "NA"
+print("\nMinimum     Maximum     Average")
+print(f"{min_amount:>7}{max_amount:>12}{average_amount:>12}")
