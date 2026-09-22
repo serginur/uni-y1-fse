@@ -1,3 +1,4 @@
+import calendar
 from sys import argv
 from calendar import monthrange
 from decimal import Decimal as D, ROUND_HALF_UP, ROUND_UP
@@ -21,7 +22,8 @@ print("Programmer: Iakimovich Sergey")
 print(input_lines[0]+'\n')
 print(f"Precipitation report for {input_lines[1]} during {input_lines[2]}\n")
 
-month, year = list(map(int, input_lines[2].split(", ")))
+month = list(calendar.month_abbr).index(input_lines[2].split(", ")[0][:3])
+year = int(input_lines[2].split(", ")[1])
 num_of_days = monthrange(month, year)[1]
 
 print(f"{"Error":<8}{"Day":>8}{"Line":>7}")
