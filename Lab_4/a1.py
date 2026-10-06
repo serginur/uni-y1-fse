@@ -16,7 +16,17 @@ if (len(argv) > 1):
         n = True
 
 if (n is None):
-    n = int(input("Введите количество примеров: "))
+    is_ok_input = False
+    while not is_ok_input:
+        n = input("Введите количество примеров или \"inf\" для бесконечных примеров: ")
+        if n == "inf":
+            n = True
+            is_ok_input = True
+        elif n.isdigit():
+            n = int(n)
+            is_ok_input = True
+        else:
+            print("Неверный ввод!")
 
 programm_start_time = time.time()
 tasks_times = []
@@ -62,4 +72,8 @@ print("="*30)
 print(f"Общее время: {programm_spend_time:.1f} секунд")
 print(f"Среднее время на вопрос: {programm_spend_time/n:.1f} секунд")
 print(f"Правильных ответов: {right_answers}/{i}")
-print(f"Процент правильных: {right_answers/i * 100:.1f}%")
+try:
+    right_percent = right_answers/i
+except ZeroDivisionError:
+    right_percent = 0
+print(f"Процент правильных: {right_percent * 100:.1f}%")
