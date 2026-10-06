@@ -3,7 +3,7 @@ import re
 
 text = None
 if len(argv) > 2:
-    print(f"!--usage: python {argv[0]} [\"the text\"]")
+    print(f"!-- usage: python {argv[0]} [\"the text\"]")
     exit(0)
 if len(argv) > 1:
     text = argv[1]
