@@ -28,6 +28,20 @@ if (n is None):
         else:
             print("Неверный ввод!")
 
+task = None
+while True:
+    try:
+        task = int(input("Введите желаемую цифру от 2 до 9 или 0 для всей таблицы умножения: "))
+    except ValueError:
+        print("Пожалуйста, введите целое число!")
+        continue
+    except (KeyboardInterrupt, EOFError):
+        exit(0)
+    if task > 9 or task < 2:
+        print("Неверный ввод!")
+    else:
+        break
+
 programm_start_time = time.time()
 tasks_times = []
 right_answers = 0
@@ -35,7 +49,7 @@ i = 0
 while True:
     i += 1
     print(f"Вопрос {i}{f"/{n}" if n is int else ""}")
-    a = randint(2, 9)
+    a = randint(2, 9) if task == 0 else task
     b = randint(2, 9)
 
     start_time = time.time()
@@ -43,7 +57,7 @@ while True:
     is_interrupted = False
     while True:
         try:
-            answer = input(f"{a} * {b} = ")
+            answer = int(input(f"{a} * {b} = "))
             break
         except ValueError:
             print("Пожалуйста, введите целое число!")
@@ -55,7 +69,7 @@ while True:
         print()
         break
     spend_time = time.time() - start_time
-    if int(answer) == a*b:
+    if answer == a*b:
         print(f"Верно! (Время: {spend_time:.1f} секунд)")
         right_answers += 1
     else:
