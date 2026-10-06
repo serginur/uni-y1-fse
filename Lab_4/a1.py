@@ -43,7 +43,6 @@ while True:
         break
 
 programm_start_time = time.time()
-tasks_times = []
 right_answers = 0
 i = 0
 while True:
