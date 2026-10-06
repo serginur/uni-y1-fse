@@ -9,15 +9,15 @@ if len(argv) > 1:
     text = argv[1]
 
 if text is None:
-    text = input("Введите текст:")
+    text = input("Введите текст:\n")
 
-sentenses = re.split(r"(?<=[?!.])", text)
+sentences = []
+for sentence in re.split(r"(?<=[?!.]) ", text):
+    if sentence:
+        sentences.append(sentence.strip())
 
-for _ in range(sentenses.count('')):
-    sentenses.remove('')
+for sent in sentences:
+    print(sent.strip())
 
-for s in sentenses:
-    print(s)
-
-print(f"Предложений в тексте: {len(sentenses)}")
+print(f"Предложений в тексте: {len(sentences)}")
 
