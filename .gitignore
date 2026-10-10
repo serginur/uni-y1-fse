@@ -1,0 +1,4 @@
+*.out
+*.txt
+.gitignore
+.DS_Store
