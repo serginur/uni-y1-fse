@@ -248,21 +248,18 @@ sentences = re.split(r'(?<=[.?!]) ', text)
 &emsp;&emsp;В этом проекте используются два входных файла. Один файл **sequences.txt** содержит генетические данные, а другой файл **commands.txt** - содержит команды, которые необходимо выполнить над этими данными.\
 &emsp;&emsp;Во входном файле **sequences.txt** каждая строка содержит название белка, название организма, в котором он обнаружен, и цепочку аминокислот. Данные разделены символом табуляции. На рисунке ниже представлен пример файла **sequences.txt**. Знаком → обозначен символ табуляции, а знаком ¶ - символ конца строки.
 ```
-6.8 kDa mitochondrial proteolipid→Homo sapiens
-(Human)→MLQSIIKNIWIPMKPYYTKVYQEIWIGMGLMGFIVYKIRAADKRSKALKASAPAPGHHI¶
-Pre-T/NK cell associated protein 6H9A→Homo sapiens
-(Human)→MRLSCIVIITITAELCVPLMLCAHGEQAQLPRGVCVLGTGTSPAWSPVLLGRLPFPHI¶
-Alcohol dehydrogenase→Brachydanio
-rerio→MDTTGKVIKCKAAVAWEAGKPLTIEEVEVAPPKAHEVRVKIHATGVCHTDAYTLSGSDPEGLFPVILGHEGAGTVESVGEGVTKI¶
-RNA-dependent RNA polymerase [Fragment]→San Miguel sea lion
-virus→PSGMPLTSIINSINHCIMVGCAVVKALEDSGVQATWNIFDSMDLFTYGDDGVYIVPPLISSVMPKVFSNLRQFGLKPTRTDKTDAEITPIPADEPVEFLKRTIVRTENGIRALLDKSSIIT¶
-Cecropin→Bombyx mori (Silk moth)→RWKIFKKIEKVGONIRDGIVKAGPAVAVVGOAATIT¶
+6.8 kDa mitochondrial proteolipid→Homo sapiens (Human)→MLQSIIKNIWIPMKPYYTKVYQEIWIGMGLMGFIVYKIRAADKRSKALKASAPAPGHH¶
+Pre-T/NK cell associated protein 6H9A→Homo sapiens (Human)→MRLSCLVIITITAELCVPLMLCAHGEQAQLPRGVCVLGTGTSPAWSPVLLGRLPFPH¶
+Alcohol dehydrogenase→Brachydanio rerio→MDTTGKVIKCKAAVAWEAGKPLTIEEVEVAPPKAHEVRVKIHATGVCHTDAYTLSGSDPEGLFPVILGHEGAGTVESVGEGVTK¶
+RNA-dependent RNA polymerase [Fragment]→San Miguel sea lion virus→PSGMPLTSIINSLNHCLMVGCAVVKALEDSGVQATWNIFDSMDLFTYGDDGVYIVPPLISSVMPKVFSNLRQFGLKPTRTDKTDAEITPIPADEPVEFLKRTIVRTENGIRALLDKSSII¶
+Cecropin→Bombyx mori (Silk moth)→RWKIFKKIEKVGQNIRDGIVKAGPAVAVVGQAATI¶
+
 ```
 &emsp;&emsp;Во входном файле **commands.txt** каждая строка содержит название операции, которую необходимо выполнить над входными данными файла **sequences.txt**. Возможные операции: **search, diff, mode**. У каждой операции есть параметры.
 ```
 search→SIIK¶
 search→PIML¶
-search→FK3I¶ # RLE encoded
+search→FK3I¶ # 3I -> RLE encoded
 diff→6.8 kDa mitochondrial proteolipid→Alcohol dehydrogenase¶
 diff→RNA-dependent RNA polymerase [Fragment]→Alcohol dehydrogenase¶
 diff→Cecropin→Pre-I/NK cell associated protein 6H9A¶
@@ -284,16 +281,16 @@ mode→Alcohol dehydrogenase¶
 \
 &emsp;&emsp;Выполнение операции search означает, что во входных данных из файла **sequences.txt** необходимо найти указанную &lt;последовательность аминокислот>. Для каждого белка, содержащего эту последовательность, необходимо записать в выходной файл **genedata.txt** название организма и соответствующий белок. Если совпадений не найдено, то записать сообщение “NOT FOUND”. В примере ниже, последовательность аминокислот SIIK найдена в организме Homo sapiens (Human) в белке 6.8 kDa mitochondrial proteolipid.
 ```
--------------------------------------------------------------------------------
-001   search    SIIK
-organism                    protein
-Homo sapiens (Human)        6.8 kDa mitochondrial proteolipid
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------
+001   search   SIIK 
+organism				protein 
+Homo sapiens (Human)		6.8 kDa mitochondrial proteolipid
+--------------------------------------------------------------------------
 ```
 &emsp;&emsp;А следующий пример вывода означает, что последовательность аминокислот FKIII не обнаружена ни в одном белке входного файла:
 ```
-003   search    FKIII
-organism                    protein
+003   search   FKIII 
+organism				protein 
 NOT FOUND
 ```
 &emsp;&emsp;Выводимые в начале строки цифры (001 или 003) - это порядковые номера операций по ходу их чтения из файла commands.txt.\
@@ -304,10 +301,10 @@ NOT FOUND
 \
 &emsp;&emsp;Выполнение команды diff означает, что необходимо определить, сколько аминокислот необходимо заменить, чтобы генетически превратить белок 1 в белок 2. Это можно легко сделать, сравнив аминокислотные цепочки обоих белков и посчитав количество позиций, в которых эти две последовательности различаются. Для белков из примера ниже количество таких позиций равно 81.
 ```
--------------------------------------------------------------------------------
-004   diff   6.8 kDa mitochondrial proteolipid   Alcohol dehydrogenase
-amino-acids difference:
-81
+--------------------------------------------------------------------------
+004   diff   6.8 kDa mitochondrial proteolipid   Alcohol dehydrogenase 
+amino-acids difference: 
+81 
 ```
 &emsp;&emsp;Учитывайте, что длины цепочек белка 1 и белка 2 чаще всего различны. Если белок 1 или белок 2 не найден в файле исходных данных sequences.txt, то после строки «amino-acids difference:» должно быть выведено сообщение «MISSING:», за которым следует название(я) отсутствующего(их) белка(ов).
 \
@@ -316,14 +313,15 @@ amino-acids difference:
 
 &emsp;&emsp;Выполнение операции mode означает, что необходимо найти во входных данных указанный белок, а в его цепочке найти аминокислоту, которая встречается чаще всего. Если найдется более одной такой аминокислоты, то выведите ту, которая стоит первой в алфавитном порядке. В примере ниже в белке **Cecropin** чаще всего (5 раз) встречается аминокислота **A**. А в белке **Alcohol dehydrogenase** чаще всего (11 раз) встречается аминокислота **V**.
 ```
--------------------------------------------------------------------------------
-007   mode   Cecropin
-amino-acid occurs:
+--------------------------------------------------------------------------
+007   mode   Cecropin  
+amino-acid occurs: 
 A          5
-008   mode   Alcohol dehydrogenase
-amino-acid occurs:
+--------------------------------------------------------------------------
+008   mode   Alcohol dehydrogenase  
+amino-acid occurs: 
 V          11
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 ```
 &emsp;&emsp;Если белок не найден в исходном файле, то в строке, следующей за «amino-acid occurs:», выведите сообщение «MISSING:», за которым следует название отсутствующего белка.\
 \
@@ -339,57 +337,52 @@ V          11
 &emsp;&emsp;**•** выводим наиболее часто встречающуюся аминокислоту и количество раз, которое она встречается в организме.\
 **Пример входного файла sequences.txt**
 ```
-Lsm3 protein    Homo sapiens (Human)
-MADDVD3QTTNTVEEPLDLIRLSLDERIYVKMRNDRELRGRLHAYDQHLNMILGDVEETVTTIEIDEETYEEIYKSTKRNIPMLFVRGDGVVLVAPPLRVG
-6.8 kDa mitochondrial proteolipid       Homo sapiens (Human)
-MLQSIIKNIWIPMKPYYTKVYQEIWIGMGLMGFIVYKIRAADKRSKALKASAPAPGHH
-Drosophila melanogaster [Fragment]      Fruit/vinegar fly
-AAGAT4AGTG3TC8ATA3TCGC4TC5ATTGTCAGATGAGAG6AT4AT4AGAT3ATAT3ATGTGTAACCGGTAGCTAATTCGAGC3GCGA4TAACCAACGAATATT4AGC3TAA7T5ATTAT
-pituitary tumor-transforming protein 1  Homo sapiens (Human)
-MATLIYVDKENGEPGTRVVAKDGLKLGSGPSIKALDGRSQVSTPRFGKTFDAPPALPKATRKALGTVNRATEKSVKTKGPLKQKQPSFSAKKMTEKTVKAKSSVPASDDAYPEIEKFFPFNPLDFESFDLPEEHQIAHLPLSGVPLMILDEERELEKLFOLGPPSPVKMPSPPWESNLLQSPSSILSTLDVELPPVCCDIDI
-PREDICTED: similar to double homeobox   Homo sapiens (Human)
-MALPTPSDGTLPAEARGLGRSRRLVWTPSQSEALQACFERNPYPDIATRVPLAQAIGILEPRVQIWFQNGRSRQLRQHRWESRPWPWRRGPQEGRRKRTAVTGSQTTVLL
-C-FLIP AMPA glutamate   Goldfish        TPVNLAVLKLSEQGILAKLKNKWWYDKGECGTKDSGSK
-TRAF interacting protein TANK isoform b Homo sapiens (Human)
-MDKNIGEQLNKAYEAFRQACMDRDSAVKELQQKTENYEQRIREQQEQLSLQQTIIDKLKSQ3LVNSTQDNNYGCVPLLEDSETRKNNLTLDQPQDKVISGIAREKLPKVDIASAESSI
+Lsm3 protein	Homo sapiens (Human)	MADDVD3QTTNTVEEPLDLIRLSLDERIYVKMRNDRELRGRLHAYDQHLNMILGDVEETVTTIEIDEETYEEIYKSTKRNIPMLFVRGDGVVLVAPPLRVG
+6.8 kDa mitochondrial proteolipid	Homo sapiens (Human)	MLQSIIKNIWIPMKPYYTKVYQEIWIGMGLMGFIVYKIRAADKRSKALKASAPAPGHH
+Drosophila melanogaster [Fragment]	Fruit/vinegar fly	AAGAT4AGTG3TC8ATA3TCGC4TC5ATTGTCAGATGAGAG6AT4AT4AGAT3ATAT3ATGTGTAACCGGTAGCTAATTCGAGC3GCGA4TAACCAACGAATATT4AGC3TAA7T5ATTAT
+pituitary tumor-transforming protein 1	Homo sapiens (Human)	MATLIYVDKENGEPGTRVVAKDGLKLGSGPSIKALDGRSQVSTPRFGKTFDAPPALPKATRKALGTVNRATEKSVKTKGPLKQKQPSFSAKKMTEKTVKAKSSVPASDDAYPEIEKFFPFNPLDFESFDLPEEHQIAHLPLSGVPLMILDEERELEKLFQLGPPSPVKMPSPPWESNLLQSPSSILSTLDVELPPVCCDIDI
+PREDICTED: similar to double homeobox	Homo sapiens (Human)	MALPTPSDGTLPAEARGLGRSRRLVWTPSQSEALQACFERNPYPDIATRVPLAQAIGILEPRVQIWFQNGRSRQLRQHRWESRPWPWRRGPQEGRRKRTAVTGSQTTVLL
+C-FLIP AMPA glutamate	Goldfish	TPVNLAVLKLSEQGILAKLKNKWWYDKGECGTKDSGSK
+TRAF interacting protein TANK isoform b	Homo sapiens (Human)	MDKNIGEQLNKAYEAFRQACMDRDSAVKELQQKTENYEQRIREQQEQLSLQQTIIDKLKSQ3LVNSTQDNNYGCVPLLEDSETRKNNLTLDQPQDKVISGIAREKLPKVDIASAESSI
 ```
 \
 **Пример входного файла commands.txt**
 ```
-mode    PREDICTED: similar to double homeobox
-search  LKSQ
-diff    C-FLIP AMPA glutamate   6.8 kDa mitochondrial proteolipid
-mode    Lsm3 protein
-diff    Lsm3 protein    Drosophila melanogaster [Fragment]
-search  TPRFGKTFDA
+mode	PREDICTED: similar to double homeobox
+search	LKSQ
+diff	C-FLIP AMPA glutamate	6.8 kDa mitochondrial proteolipid
+mode	Lsm3 protein
+diff	Lsm3 protein	Drosophila melanogaster [Fragment]
+search	TPRFGKTFDA
 ```
 \
 Пример выходного файла **genedata.txt** для исходных данных, представленных выше:
 ```
 Ivan Ivanov
 Genetic Searching
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 001   mode   PREDICTED: similar to double homeobox
 amino-acid occurs:
 R          17
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 002   search   LKSQ
-organism                protein
-Homo sapiens (Human)    TRAF interacting protein TANK isoform b
--------------------------------------------------------------------------------
+organism                 protein
+Homo sapiens (Human)     TRAF interacting protein TANK isoform b
+--------------------------------------------------------------------------
 003   diff   C-FLIP AMPA glutamate   6.8 kDa mitochondrial proteolipid
 amino-acids difference:
 58
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 004   mode   Lsm3 protein
 amino-acid occurs:
 E          11
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 005   diff   Lsm3 protein   Drosophila melanogaster [Fragment]
 amino-acids difference:
 156
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 006   search   TPRFGKTFDA
-organism                protein
-Homo sapiens (Human)    pituitary tumor-transforming protein 1
+organism                 protein
+Homo sapiens (Human)     pituitary tumor-transforming protein 1
+--------------------------------------------------------------------------
 ```
