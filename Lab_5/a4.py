@@ -58,35 +58,36 @@ except FileNotFoundError:
     print("Файл или директория отсутствует!")
     exit(0)
 
-# with open("genedata.txt", 'w') as out:
-#     out.write("Sergey Iakimovich\n")
-#     out.write("Genetic Searching\n")
-#     out.write(f"{"-"*80}\n")
-
-print("Sergey Iakimovich\n")
-print("Genetic Searching\n")
-print(f"{"-"*80}\n")
+with open("genedata.txt", 'w') as out:
+    out.write("Sergey Iakimovich\n")
+    out.write("Genetic Searching\n")
+    out.write(f"{"-"*80}\n")
 
 operation_index = 0
 for command_dict in commands:
     command, params = command_dict.values()
     operation_index += 1
-    print(f"{operation_index:03d}   {command}   {"   ".join(params.split('|'))}")
+    with open("genedata.txt", 'a') as out:
+        out.write(f"{operation_index:03d}   {command}   {"   ".join(params.split('|'))}\n")
     match command:
         case "search":
-            print(f"{"organism":<25}protein",end='')
+            with open("genedata.txt", 'a') as out:
+                out.write(f"{"organism":<25}protein")
             found = ""
             for sequence in sequences:
                 protein, entity, amino_acid = sequence.values()
                 if params in amino_acid:
                     found += f"\n{entity:<25}{protein}"
             if found:
-                print(found)
+                with open("genedata.txt", 'a') as out:
+                    out.write(f"{found}\n")
             else:
-                print("\nNOT FOUND")
+                with open("genedata.txt", 'a') as out:
+                    out.write("\nNOT FOUND\n")
 
         case "diff":
-            print("amino-acids difference:")
+            with open("genedata.txt", 'a') as out:
+                out.write("amino-acids difference:\n")
             proteins = tuple(params.split('|'))
             compared = {}
             for sequence in sequences:
@@ -97,27 +98,34 @@ for command_dict in commands:
             missing = [protein\
                         for protein in proteins if protein not in compared]
             if missing:
-                print(f"MISSING: {", ".join(miss for miss in missing)}")
+                with open("genedata.txt", 'a') as out:
+                    out.write(f"MISSING: {", ".join(miss for miss in missing)}\n")
             else:
                 if (len(compared) == 1):
-                    print(0)
+                    with open("genedata.txt", 'a') as out:
+                        out.write(f"{0}\n")
                 else:
                     acid1, acid2 = tuple(compared.values())
                     diff = abs(len(acid1) - len(acid2))
                     for i in range(min(len(acid1), len(acid2))):
                         diff += 1 if acid1[i] != acid2[i] else 0
-                    print(f"{diff}")
+                    with open("genedata.txt", 'a') as out:
+                        out.write(f"{diff}\n")
         case "mode":
-            print("amino-acid occurs")
+            with open("genedata.txt", 'a') as out:
+                out.write("amino-acid occurs:\n")
             max_repeat = None
             for sequence in sequences:
                 protein, _, amino_acid = sequence.values()
                 if protein == params:
                     max_repeat = Counter(sorted(amino_acid)).most_common(1)[0]
             if max_repeat:
-                print(f"{max_repeat[0]:<11}{max_repeat[1]}")
+                with open("genedata.txt", 'a') as out:
+                    out.write(f"{max_repeat[0]:<11}{max_repeat[1]}\n")
             else:
-                print(f"MISSING: {params}")
+                with open("genedata.txt", 'a') as out:
+                    out.write(f"MISSING: {params}\n")
         case _:
             pass
-    print("-"*80)
+    with open("genedata.txt", 'a') as out:
+        out.write(f"{"-"*80}\n")
