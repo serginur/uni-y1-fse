@@ -1,3 +1,4 @@
+from re import L
 from sys import argv
 from collections import Counter
 
@@ -44,66 +45,79 @@ try:
         for line in com_file.read().split('\n'):
             if line:
                 tokens = line.split('\t')
-                tokens_to_append = []
-                for i in range(1, len(tokens)):
-                    tokens_to_append.append(decode_seq(tokens[i]))
-                if (len(tokens) > 2):
-                    commands.append({"command": tokens[0],\
-                                    "params": f"{tokens_to_append[0]}\t{tokens_to_append[1]}"})
-                else:
-                    commands.append({"command": tokens[0],\
-                                    "params": tokens_to_append[1]})
+                command = tokens[0]
+                match command:
+                    case "diff":
+                        params = f"{tokens[1]}|{tokens[2]}"
+                    case "search":
+                        params = decode_seq(tokens[1])
+                    case _:
+                        params = tokens[1]
+                commands.append({"command": command, "params": params})
 except FileNotFoundError:
     print("Файл или директория отсутствует!")
     exit(0)
 
-with open("genedata.txt", 'w') as out:
-    out.write("Sergey Iakimovich\n")
-    out.write("Genetic Searching\n")
-    out.write(f"{"-"*80}\n")
+# with open("genedata.txt", 'w') as out:
+#     out.write("Sergey Iakimovich\n")
+#     out.write("Genetic Searching\n")
+#     out.write(f"{"-"*80}\n")
+
+print("Sergey Iakimovich\n")
+print("Genetic Searching\n")
+print(f"{"-"*80}\n")
 
 operation_index = 0
-for command in commands:
+for command_dict in commands:
+    command, params = command_dict.values()
     operation_index += 1
-    print(f"{operation_index:03d}\t{command["command"]}\t{command["params"]}")
-    match command["command"]:
+    print(f"{operation_index:03d}   {command}   {"   ".join(params.split('|'))}")
+    match command:
         case "search":
-            print("organism\t\t\tprotein",end='')
+            print(f"{"organism":<25}protein",end='')
             found = ""
-            for seq in sequences:
-                if command["params"] in seq["amino-acid"]:
-                    found += f"\n{seq["entity"]}\t\t\t{seq["protein"]}"
+            for sequence in sequences:
+                protein, entity, amino_acid = sequence.values()
+                if params in amino_acid:
+                    found += f"\n{entity:<25}{protein}"
             if found:
                 print(found)
             else:
                 print("\nNOT FOUND")
 
-            print("-"*80)
         case "diff":
             print("amino-acids difference:")
-            proteins = tuple(command["params"].split('\t'))
-            compared = {protein: seq["amino-acid"]\
-                            for protein in proteins for seq in sequences\
-                                if seq["protein"] == protein}
-            missing = [protein for protein in proteins if protein not in compared]
+            proteins = tuple(params.split('|'))
+            compared = {}
+            for sequence in sequences:
+                protein, _, amino_acid = sequence.values()
+                for comp_protein in proteins:
+                    if comp_protein == protein:
+                        compared[comp_protein] = amino_acid
+            missing = [protein\
+                        for protein in proteins if protein not in compared]
             if missing:
                 print(f"MISSING: {", ".join(miss for miss in missing)}")
             else:
-                acid1, acid2 = tuple(compared.values())
-                diff = abs(len(acid1) - len(acid2))
-                for i in range(min(len(acid1), len(acid2))):
-                    diff += 1 if acid1[i] != acid2[i] else 0
-                print(f"{diff}")
+                if (len(compared) == 1):
+                    print(0)
+                else:
+                    acid1, acid2 = tuple(compared.values())
+                    diff = abs(len(acid1) - len(acid2))
+                    for i in range(min(len(acid1), len(acid2))):
+                        diff += 1 if acid1[i] != acid2[i] else 0
+                    print(f"{diff}")
         case "mode":
             print("amino-acid occurs")
             max_repeat = None
-            for seq in sequences:
-                if seq["protein"] is command["params"]:
-                    max_repeat = Counter(sorted(seq["amino-acid"])).most_common(1)[0]
+            for sequence in sequences:
+                protein, _, amino_acid = sequence.values()
+                if protein == params:
+                    max_repeat = Counter(sorted(amino_acid)).most_common(1)[0]
             if max_repeat:
-                print(f"{max_repeat[0]}\t\t{max_repeat[1]}")
+                print(f"{max_repeat[0]:<11}{max_repeat[1]}")
             else:
-                print(f"MISSING: {command["params"]}")
+                print(f"MISSING: {params}")
         case _:
             pass
     print("-"*80)
