@@ -1,4 +1,3 @@
-from re import L
 from sys import argv
 from collections import Counter
 
