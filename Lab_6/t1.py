@@ -12,7 +12,7 @@ if len(argv) > 1:
         print(f"!-- usage: python {argv[0]} [path_to_users path_to_workouts]")
         exit(0)
 
-def load_users_data():
+def load_users_data()->list:
     try:
         users_tree = ET.parse(users_file)
         users = []
@@ -31,7 +31,7 @@ def load_users_data():
         print("Файл не найден!")
         return []
 
-def load_workouts_data():
+def load_workouts_data()->list:
     try:
         workouts_tree = ET.parse(workouts_file)
         workouts = []
@@ -53,9 +53,7 @@ def load_workouts_data():
         print("Файл не найден!")
         return []
 
-def get_status():
-    users = load_users_data()
-    workouts = load_workouts_data()
+def get_status(users: list[dict], workouts: list[dict]):
     total_calories = 0
     total_duration = 0
     total_distance = 0.0
@@ -72,4 +70,4 @@ def get_status():
     print(f"Пройдено дистанции: {total_distance:.01f} км")
 
 if __name__ == "__main__":
-    get_status()
+    get_status(load_users_data(), load_workouts_data())
