@@ -1,6 +1,5 @@
-import calendar
 from sys import argv
-from calendar import monthrange
+from calendar import monthrange, month_abbr
 from decimal import Decimal as D, ROUND_HALF_UP, ROUND_UP
 
 file_path = "b1_task_files/Precip.txt"
@@ -25,7 +24,7 @@ with open("Report.txt", 'w') as output:
     output.write(input_lines[0]+'\n\n')
     output.write(f"Precipitation report for {input_lines[1]} during {input_lines[2]}\n")
 
-month = list(calendar.month_abbr).index(input_lines[2].split(", ")[0][:3])
+month = list(month_abbr).index(input_lines[2].split(", ")[0][:3])
 year = int(input_lines[2].split(", ")[1])
 num_of_days = monthrange(year, month)[1]
 
@@ -37,7 +36,7 @@ for line_num in range(3, len(input_lines)):
         continue
     errors = ""
     day, inches = list(map(D, line.split()))
-    if day > D(str(num_of_days)) or day < D(str(1)):
+    if day > num_of_days or day < 1:
         errors += "Invalid "
     if day in data:
         errors += "Repeated "
@@ -58,7 +57,7 @@ average_amount = None
 with open("Report.txt", 'a') as output:
     output.write(f"\nDay Amount Graph\n")
 for i in range(1, num_of_days+1):
-    day = D(i)
+    day = i
     inch_in_day = None
     graph_len = 0
     if day in data:
@@ -78,7 +77,7 @@ for i in range(1, num_of_days+1):
         output.write(f"{day:>3}{"NA" if inch_in_day is None else inch_in_day:>7} {graph}\n")
 
 if average_amount is not None:
-    average_amount = D(average_amount/D(num_of_days)).quantize(D("0.01"))
+    average_amount = D(average_amount/num_of_days).quantize(D("0.01"))
 else:
     average_amount = min_amount = max_amount = "NA"
 with open("Report.txt", 'a') as output:
