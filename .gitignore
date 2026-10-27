@@ -2,3 +2,4 @@
 *.txt
 .gitignore
 .DS_Store
+__pycache__

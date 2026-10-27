@@ -12,7 +12,7 @@ if len(argv) > 1:
         print(f"!-- usage: python {argv[0]} [path_to_users path_to_workouts]")
         exit(0)
 
-def load_users_data()->list:
+def load_users_data()->list[dict]:
     try:
         users_tree = ET.parse(users_file)
         users = []
@@ -31,7 +31,7 @@ def load_users_data()->list:
         print("Файл не найден!")
         return []
 
-def load_workouts_data()->list:
+def load_workouts_data()->list[dict]:
     try:
         workouts_tree = ET.parse(workouts_file)
         workouts = []

@@ -1,23 +1,32 @@
 import t1
 
-def analyze_user_activity(users: list): # TODO: ОТКУДА У ЮЗЕРОВ ДАННЫЕ О ИХ ТРЕНИРОВКАХ???
-    pass
-    # для каждого пользователя посчитает общее количество тренировок, общее количество
-    # калорий, суммарное время тренировок (в часах) и выведет 3-х самых активных
-    # пользователей в следующем виде:
-    # ТОП-3 АКТИВНЫХ ПОЛЬЗОВАТЕЛЕЙ:
-    #   1. Анна (продвинутый):
-    #       Тренировок: 10
-    #       Калорий: 4130
-    #       Время: 9.0 часов
-    #   2. Борис (средний):
-    #       Тренировок: 9
-    #       Калорий: 2750
-    #       Время: 7.4 часов
-    #   3. Григорий (продвинутый):
-    #       Тренировок: 8
-    #       Калорий: 4300
-    #       Время: 8.8 часов
+def analyze_user_activity(users: list[dict], workouts: list[dict]):
+    total_users_workouts = list()
+    for user in users:
+        workouts_num = 0
+        calories = 0
+        duration = 0
+        for workout in workouts:
+            if workout["user_id"] == user["user_id"]:
+                workouts_num += 1
+                calories += workout["calories"]
+                duration += workout["duration"]
+        duration /= 60
+        total_users_workouts.append([user["name"],
+                                     user["fitness_level"],
+                                     workouts_num,
+                                     calories,
+                                     duration])
+    total_users_workouts = sorted(total_users_workouts, key=lambda user: user[2], reverse=True)
+    print("ТОП-3 АКТИВНЫХ ПОЛЬЗОВАТЕЛЕЙ:")
+    for i in range(3):
+        user = total_users_workouts[i]
+        print(f"  {i+1}. {user[0]} ({user[1]}):")
+        print(f"    Тренировок: {user[2]}")
+        print(f"    Калорий: {user[3]}")
+        print(f"    Время: {user[4]:.1f} часов")
+        if i != 2:
+            print()
 
 def analyze_workout_types(workouts):
     pass
@@ -60,8 +69,4 @@ def analyze_user(user, workouts): # TODO: ОТКУДА В ВОРКАУТАХ Д�
 if __name__ == "__main__":
     users = t1.load_users_data()
     workouts = t1.load_workouts_data()
-    for user in users:
-        for workout in workouts:
-            if workout["user_id"] == user["user_id"]:
-                user["workouts"].append(workout)
-    analyze_user_activity(users)
+    analyze_user_activity(users, workouts)
