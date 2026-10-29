@@ -1,6 +1,4 @@
 import t1
-from datetime import date as d
-
 
 def analyze_user_activity(users: list[dict], workouts: list[dict]):
     total_users_workouts: list[list] = list()
