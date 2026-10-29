@@ -41,7 +41,7 @@ def load_workouts_data()->list[dict]:
                 "user_id": int(workout_elem.find("user_id").text),
                 "date": d.strptime(workout_elem.find("date").text, "%Y-%m-%d"),
                 "type": workout_elem.find("type").text,
-                "duration": float(workout_elem.find("duration").text),
+                "duration": int(workout_elem.find("duration").text),
                 "distance": float(workout_elem.find("distance").text),
                 "calories": int(workout_elem.find("calories").text),
                 "avg_heart_rate": int(workout_elem.find("avg_heart_rate").text),
