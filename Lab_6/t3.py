@@ -1,6 +1,6 @@
 import t1
 import matplotlib.pyplot as plt
-from dataclasses import dataclass as dtc
+from dataclasses import dataclass
 
 # круговая диаграмма типов тренировок
 def draw_total_workout_types(workouts: list[dict]):
@@ -8,16 +8,15 @@ def draw_total_workout_types(workouts: list[dict]):
     for workout in workouts:
         w_type = workout["type"]
         workout_types_amount[w_type] = workout_types_amount.get(w_type, 0) + 1
-    names = tuple(workout_types_amount.values())
-    numbers = tuple(workout_types_amount.keys())
     plt.rcParams["axes.titleweight"] = "bold"
     plt.title("Распределение типов тренировок")
-    plt.pie(names, labels=numbers, startangle=90, autopct="%1.1f%%")
+    plt.pie(workout_types_amount.values(), labels=workout_types_amount.keys(),
+            startangle=90, autopct="%1.1f%%")
     plt.show()
 
 # столбчатая диаграмма активности пользователей (кол-во тренировок)
 def draw_users_activity(users: list[dict], workouts: list[dict]):
-    @dtc
+    @dataclass
     class User:
         name: str
         workouts_num: int
@@ -30,14 +29,17 @@ def draw_users_activity(users: list[dict], workouts: list[dict]):
     sorted_users = sorted(tuple(users_id_data.values()),
                           key=lambda us : us.workouts_num,
                           reverse=True)
-    names = list(us.name for us in sorted_users)
-    numbers = list(us.workouts_num for us in sorted_users)
+    names = list()
+    workouts_numbers = list()
+    for user in sorted_users:
+        names.append(user.name)
+        workouts_numbers.append(user.workouts_num)
     plt.rcParams["axes.titleweight"] = "bold"
     plt.rcParams["figure.subplot.bottom"] = 0.2
     plt.rcParams["figure.subplot.left"] = 0.071
     plt.rcParams["figure.subplot.right"] = 0.98
     plt.figure(figsize=(8, 5))
-    bar_container = plt.bar(names, numbers, 
+    bar_container = plt.bar(names, workouts_numbers, 
                             color=list("tab:cyan" for _ in range(len(names))))
     plt.bar_label(bar_container, fmt="{}")
     plt.title("Активность пользователей (количество тренировок)")
@@ -49,7 +51,7 @@ def draw_users_activity(users: list[dict], workouts: list[dict]):
 
 # столбчатая диаграмма эффективности тренировок (ккал/мин)
 def draw_workout_types_efficiency(workouts: list[dict]):
-    @dtc
+    @dataclass
     class WorkoutData:
         calories: int
         duration: int
@@ -63,12 +65,13 @@ def draw_workout_types_efficiency(workouts: list[dict]):
         else:
             workout_types_data[w_type] = WorkoutData(workout["calories"],
                                                 workout["duration"])
-    sorted_w_t_data = sorted([[w_type, round(data.calories/data.duration, 2)]\
+    sorted_workout_types_data = sorted([[w_type,
+                                         round(data.calories/data.duration, 2)]\
                               for w_type, data in workout_types_data.items()],
-                             key=lambda item : item[1], reverse=True)
+                              key=lambda item : item[1], reverse=True)
     workout_types = list()
     types_efficiency = list()
-    for data in sorted_w_t_data:
+    for data in sorted_workout_types_data:
         workout_types.append(data[0])
         types_efficiency.append(data[1])
     plt.rcParams["axes.titleweight"] = "bold"
@@ -87,7 +90,7 @@ def draw_workout_types_efficiency(workouts: list[dict]):
 
 # сравнительная диаграмма пользователей (общие ккал на пользователя)
 def draw_users_compared_calories(users: list[dict], workouts: list[dict]):
-    @dtc
+    @dataclass
     class User:
         name: str
         level: str
@@ -107,9 +110,9 @@ def draw_users_compared_calories(users: list[dict], workouts: list[dict]):
     colors = list()
     labels = list()
     calories = list()
-    num_to_color = {"начальный": "tab:green",
-                    "средний": "tab:orange",
-                    "продвинутый": "tab:red"}
+    num_to_color = {"начальный":    "tab:green",
+                    "средний":      "tab:orange",
+                    "продвинутый":  "tab:red"}
     for user_data in sorted_users_data:
         names.append(user_data[0])
         colors.append(num_to_color[user_data[1]])
