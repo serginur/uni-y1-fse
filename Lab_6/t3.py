@@ -8,6 +8,7 @@ def draw_total_workout_types(workouts: list[dict]):
     for workout in workouts:
         w_type = workout["type"]
         workout_types_amount[w_type] = workout_types_amount.get(w_type, 0) + 1
+
     plt.rcParams["axes.titleweight"] = "bold"
     plt.title("Распределение типов тренировок")
     plt.pie(workout_types_amount.values(), labels=workout_types_amount.keys(),
@@ -26,14 +27,17 @@ def draw_users_activity(users: list[dict], workouts: list[dict]):
         users_id_data[user["user_id"]] = User(user["name"], 0)
     for workout in workouts:
         users_id_data[workout["user_id"]].workouts_num += 1
+
     sorted_users = sorted(tuple(users_id_data.values()),
                           key=lambda us : us.workouts_num,
                           reverse=True)
+
     names = list()
     workouts_numbers = list()
     for user in sorted_users:
         names.append(user.name)
         workouts_numbers.append(user.workouts_num)
+
     plt.rcParams["axes.titleweight"] = "bold"
     plt.rcParams["figure.subplot.bottom"] = 0.2
     plt.rcParams["figure.subplot.left"] = 0.071
@@ -59,21 +63,23 @@ def draw_workout_types_efficiency(workouts: list[dict]):
     workout_types_data: dict[str, WorkoutData] = dict()
     for workout in workouts:
         w_type = workout["type"]
-        if w_type in workout_types_data:
-            workout_types_data[w_type].calories += workout["calories"]
-            workout_types_data[w_type].duration += workout["duration"]
-        else:
-            workout_types_data[w_type] = WorkoutData(workout["calories"],
-                                                workout["duration"])
+        w__type_data = workout_types_data.setdefault(w_type,
+                                               WorkoutData(workout["calories"],
+                                                           workout["duration"]))
+        w__type_data.calories += workout["calories"]
+        w__type_data.duration += workout["duration"]
+
     sorted_workout_types_data = sorted([[w_type,
                                          round(data.calories/data.duration, 2)]\
                               for w_type, data in workout_types_data.items()],
                               key=lambda item : item[1], reverse=True)
+
     workout_types = list()
     types_efficiency = list()
     for data in sorted_workout_types_data:
         workout_types.append(data[0])
         types_efficiency.append(data[1])
+
     plt.rcParams["axes.titleweight"] = "bold"
     plt.rcParams["figure.subplot.left"] = 0.06
     plt.rcParams["figure.subplot.right"] = 0.98
@@ -103,9 +109,11 @@ def draw_users_compared_calories(users: list[dict], workouts: list[dict]):
                                            0)
     for workout in workouts:
         users_data[workout["user_id"]].calories += workout["calories"]
+
     sorted_users_data = sorted([[user.name, user.level, user.calories]\
                                for user in users_data.values()],
                                key=lambda item : item[2], reverse=True)
+
     names = list()
     colors = list()
     labels = list()
@@ -119,6 +127,7 @@ def draw_users_compared_calories(users: list[dict], workouts: list[dict]):
         cap_label = user_data[1].capitalize()
         labels.append('_'+cap_label if cap_label in labels else cap_label)
         calories.append(user_data[2])
+
     plt.rcParams["axes.titleweight"] = "bold"
     plt.rcParams["figure.subplot.bottom"] = 0.2
     plt.rcParams["figure.subplot.right"] = 0.98
