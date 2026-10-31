@@ -1,47 +1,45 @@
 import t1
 
+# кастомный класс, наследующий из словаря, единственное отличие которого
+# от dict в том, что при обращении через [] к его отсутствующему ключу
+# создается новое значение по этому ключу и предполагаемые операции
+# производятся уже с новосозданным элементом
+class AddEmpty0Dict(dict):
+    def __missing__(self, key):
+        return 0
+
 def analyze_user_activity(users: list[dict], workouts: list[dict]):
-    total_users_workouts: list[list] = list()
+    total_users_workouts: list[dict] = list()
     for user in users:
-        workouts_num = 0
-        calories = 0
-        duration = 0
+        workouts_num = calories = duration = 0
         for workout in workouts:
             if workout["user_id"] == user["user_id"]:
                 workouts_num += 1
                 calories += workout["calories"]
                 duration += workout["duration"]
-
         duration /= 60
-        total_users_workouts.append([user["name"], user["fitness_level"],
-                                     workouts_num, calories, duration])
+
+        total_users_workouts.append({"name": user["name"],
+                                     "level": user["fitness_level"],
+                                     "workouts": workouts_num,
+                                     "calories": calories, 
+                                     "duration": duration})
 
     total_users_workouts = sorted(total_users_workouts,\
-                                  key=lambda user: user[2], reverse=True)
+                                  key=lambda user: user["workouts"], reverse=True)
 
     print("ТОП-3 АКТИВНЫХ ПОЛЬЗОВАТЕЛЕЙ:")
     for i in range(3):
         user = total_users_workouts[i]
-        print(f"  {i+1}. {user[0]} ({user[1]}):")
-        print(f"    Тренировок: {user[2]}")
-        print(f"    Калорий: {user[3]}")
-        print(f"    Время: {user[4]:.1f} часов\n")
+        print(f"  {i+1}. {user["name"]} ({user["level"]}):")
+        print(f"    Тренировок: {user["workouts"]}")
+        print(f"    Калорий: {user["calories"]}")
+        print(f"    Время: {user["duration"]:.1f} часов\n")
 
 def analyze_workout_types(workouts):
-    # кастомный класс, наследующий из словаря, единственное отличие которого
-    # от dict в том, что при обращении через [] к его отсутствующему ключу
-    # создается новое значение по этому ключу и предполагаемые операции
-    # производятся уже с новосозданным элементом
-    class WorkoutTypesDict(dict):
-        def __missing__(self, key):
-            return {"amount": 0, "duration": 0, "calories": 0}
-
-    workout_types: WorkoutTypesDict[str, dict[str, int]] = WorkoutTypesDict()
+    workout_types: dict[str, AddEmpty0Dict[str, int]] = dict()
     for workout in workouts:
-        # копия строки с типом текущей тренировки
-        workout_type: str = workout["type"]
-        # ссылка на словарь текущего типа тренировки
-        type_dict = workout_types[workout_type]
+        type_dict = workout_types.setdefault(workout["type"], AddEmpty0Dict())
         # так как использован кастомный класс, ошибки при обращении к отсутсвующему
         # элементу не будет:
         type_dict["amount"] += 1
@@ -49,8 +47,8 @@ def analyze_workout_types(workouts):
         type_dict["calories"] += workout["calories"]
 
     # сортировка по средней длительности
-    workout_types = sorted(workout_types.items(),\
-                key=lambda w_t_tuple: w_t_tuple[1]["duration"]/w_t_tuple[1]["amount"],\
+    workout_types = sorted(workout_types.items(),
+                key=lambda w_t_tuple: w_t_tuple[1]["duration"]/w_t_tuple[1]["amount"],
                                 reverse=True)
 
     print("РАСПРЕДЕЛЕНИЕ ПО ТИПАМ ТРЕНИРОВОК:")
@@ -58,6 +56,7 @@ def analyze_workout_types(workouts):
         print(f"  {workout_type.capitalize()}: {type_params["amount"]} тренировок ({type_params["amount"]*100/len(workouts):.1f}%)")
         print(f"    Средняя длительность: {round(type_params["duration"]/type_params['amount'])} мин")
         print(f"    Средние калории: {round(type_params["calories"]/type_params['amount'])} ккал")
+    print()
 
 def find_user_workouts(users: list[dict], workouts: list[dict], user_name: str):
     user_id = None
@@ -89,30 +88,25 @@ def find_user_workouts(users: list[dict], workouts: list[dict], user_name: str):
     print()
 
 def analyze_user(user: str, users: list[dict], workouts: list[dict]):
-    # не использован WorkoutTypesDict из-за изменившихся полей добавляемого dict
-    class TypesInfoDict(dict):
-        def __missing__(self, key):
-            return {"amount": 0, "duration": 0}
-
     user_info: dict = None
     for user_dict in users:
         if user_dict["name"].casefold() == user.casefold():
             user_info = user_dict.copy()
             del user_info["name"], user_info["workouts"]
-            user_info["types"] = TypesInfoDict()
+            user_info["types"] = dict()
             break
 
     # ссылка на словарь с типами тренировок пользователя
     user_types = user_info["types"]
     for workout in workouts:
         if workout["user_id"] == user_info["user_id"]:
-            # копия строки типа текущей тренировки
-            wrkt_type = workout["type"]
             user_info["workouts"] = user_info.setdefault("workouts", 0) + 1
             for key in ("calories", "duration", "distance"):
                 user_info[key] = user_info.setdefault(key, 0) + workout[key]
-            user_types[wrkt_type]["amount"] += 1
-            user_types[wrkt_type]["duration"] += workout["duration"]
+            # ссылка на "новый" словарь
+            workout_type_dict = user_types.setdefault(workout["type"], AddEmpty0Dict())
+            workout_type_dict["amount"] += 1
+            workout_type_dict["duration"] += workout["duration"]
 
     if user_info.get("workouts"):
         types_max_amount = max(type_data["amount"] for type_data in user_types.values())
@@ -154,4 +148,4 @@ if __name__ == "__main__":
     analyze_user_activity(users, workouts)
     analyze_workout_types(workouts)
     find_user_workouts(users, workouts, "Анна")
-    analyze_user("Григорий", users, workouts)
+    analyze_user("Борис", users, workouts)
