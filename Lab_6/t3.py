@@ -38,8 +38,10 @@ def draw_users_activity(users: list[dict], workouts: list[dict]):
         names.append(user.name)
         workouts_numbers.append(user.workouts_num)
 
-    plt.rcParams["axes.titleweight"] = "bold"
-    plt.rcParams["figure.subplot.bottom"] = 0.2
+    plt.rcParams = plt.rcParams | {
+        "axes.titleweight": "bold",
+        "figure.subplot.bottom": 0.2
+    }
     plt.rcParams["figure.subplot.left"] = 0.071
     plt.rcParams["figure.subplot.right"] = 0.98
     plt.figure(figsize=(8, 5))

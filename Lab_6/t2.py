@@ -149,3 +149,7 @@ if __name__ == "__main__":
     analyze_workout_types(workouts)
     find_user_workouts(users, workouts, "Анна")
     analyze_user("Борис", users, workouts)
+
+# analyze_user => { age: 10, fitness_level: 5 }
+# draw_user_chart(user_info)
+# print_user_info(user_info)
