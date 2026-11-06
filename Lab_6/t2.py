@@ -8,7 +8,8 @@ class AddEmpty0Dict(dict):
     def __missing__(self, key):
         return 0
 
-def analyze_user_activity(users: list[dict], workouts: list[dict]):
+# Возвращает готовый к употреблению список с данными по ВСЕМ юзерам
+def get_users_activity(users: list[dict], workouts: list[dict]) -> list[dict[str, str | int]]:
     total_users_workouts: list[dict] = list()
     for user in users:
         workouts_num = calories = duration = 0
@@ -18,25 +19,27 @@ def analyze_user_activity(users: list[dict], workouts: list[dict]):
                 calories += workout["calories"]
                 duration += workout["duration"]
         duration /= 60
-
         total_users_workouts.append({"name": user["name"],
                                      "level": user["fitness_level"],
                                      "workouts": workouts_num,
                                      "calories": calories, 
                                      "duration": duration})
 
-    total_users_workouts = sorted(total_users_workouts,\
-                                  key=lambda user: user["workouts"], reverse=True)
+    return total_users_workouts
 
+def analyze_user_activity(users: list[dict]):
+    users_by_calories = sorted(users, key=lambda user: user["calories"], reverse=True)
     print("ТОП-3 АКТИВНЫХ ПОЛЬЗОВАТЕЛЕЙ:")
     for i in range(3):
-        user = total_users_workouts[i]
+        user = users_by_calories[i]
         print(f"  {i+1}. {user["name"]} ({user["level"]}):")
         print(f"    Тренировок: {user["workouts"]}")
         print(f"    Калорий: {user["calories"]}")
         print(f"    Время: {user["duration"]:.1f} часов\n")
 
-def analyze_workout_types(workouts):
+# возвращает iterable с данными по всем типам тренировок
+def get_workout_types(workouts: list[dict]) -> list[tuple[str, AddEmpty0Dict[str, int]]]\
+                                             | dict[str, AddEmpty0Dict[str, int]]:
     workout_types: dict[str, AddEmpty0Dict[str, int]] = dict()
     for workout in workouts:
         type_dict = workout_types.setdefault(workout["type"], AddEmpty0Dict())
@@ -46,14 +49,18 @@ def analyze_workout_types(workouts):
         type_dict["duration"] += workout["duration"]
         type_dict["calories"] += workout["calories"]
 
+    return workout_types
+
+def analyze_workout_types(workouts: list[tuple[str, AddEmpty0Dict[str, int]]]):
     # сортировка по средней длительности
-    workout_types = sorted(workout_types.items(),
+    workout_types: list[tuple[str, AddEmpty0Dict[str, int]]] = sorted(workouts.items(),
                 key=lambda w_t_tuple: w_t_tuple[1]["duration"]/w_t_tuple[1]["amount"],
                                 reverse=True)
 
     print("РАСПРЕДЕЛЕНИЕ ПО ТИПАМ ТРЕНИРОВОК:")
+    total_workouts = sum(workout_type[1]["amount"] for workout_type in workout_types)
     for workout_type, type_params in workout_types:
-        print(f"  {workout_type.capitalize()}: {type_params["amount"]} тренировок ({type_params["amount"]*100/len(workouts):.1f}%)")
+        print(f"  {workout_type.capitalize()}: {type_params["amount"]} тренировок ({type_params["amount"]*100/total_workouts:.1f}%)")
         print(f"    Средняя длительность: {round(type_params["duration"]/type_params['amount'])} мин")
         print(f"    Средние калории: {round(type_params["calories"]/type_params['amount'])} ккал")
     print()
@@ -145,8 +152,10 @@ def analyze_user(user: str, users: list[dict], workouts: list[dict]):
 if __name__ == "__main__":
     users = t1.load_users_data()
     workouts = t1.load_workouts_data()
-    analyze_user_activity(users, workouts)
-    analyze_workout_types(workouts)
+    users_activity = get_users_activity(users, workouts)
+    analyze_user_activity(users_activity)
+    workout_types = get_workout_types(workouts)
+    analyze_workout_types(workout_types)
     find_user_workouts(users, workouts, "Анна")
     analyze_user("Борис", users, workouts)
 
